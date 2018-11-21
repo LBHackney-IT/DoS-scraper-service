@@ -8,4 +8,4 @@ Full documentation can be found in the system documentation microsite at https:/
 
 ## API docs
 
-API specification documentation is in the [./docs/api] directory.
+API specification documentation is in the [docs/api](./docs/api) directory.
