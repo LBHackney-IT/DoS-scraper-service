@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "94305c97d0490a8c0a7a69594e02519a",
+    "content-hash": "94df32f4ee29d877cff80ab7f61a765b",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -1705,6 +1705,57 @@
                 "simple-cache"
             ],
             "time": "2017-10-23T01:57:42+00:00"
+        },
+        {
+            "name": "rapide/laravel-queue-kafka",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rapideinternet/laravel-queue-kafka.git",
+                "reference": "409eb0366c2cde0c3831ced521f5e5ed1f0e2835"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rapideinternet/laravel-queue-kafka/zipball/409eb0366c2cde0c3831ced521f5e5ed1f0e2835",
+                "reference": "409eb0366c2cde0c3831ced521f5e5ed1f0e2835",
+                "shasum": ""
+            },
+            "require": {
+                "ext-rdkafka": "*",
+                "illuminate/database": "5.4.*|5.5.*||5.6.*|5.7.*",
+                "illuminate/queue": "5.4.*|5.5.*|5.6.*|5.7.*",
+                "illuminate/support": "5.4.*|5.5.*|5.6.*|5.7.*",
+                "php": ">=5.6.4"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9.5",
+                "phpunit/phpunit": "^5.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Rapide\\LaravelQueueKafka\\LaravelQueueKafkaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Rapide\\LaravelQueueKafka\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Peter Mein",
+                    "email": "petermein@gmail.com"
+                }
+            ],
+            "description": "Kafka driver for Laravel Queue",
+            "time": "2018-11-10T14:58:14+00:00"
         },
         {
             "name": "symfony/console",
