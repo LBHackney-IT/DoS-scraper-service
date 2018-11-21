@@ -82,6 +82,9 @@ $app->singleton(
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
+// Kafka event queue service provider
+$app->register(Rapide\LaravelQueueKafka\LumenQueueKafkaServiceProvider::class);
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
