@@ -1,5 +1,3 @@
 <?php
 
-use \Illuminate\Support\Facades\Route;
-
-Route::get('pluginlist', ['uses' => 'OpenObjectsScraperPluginController@list']);
+$this->app->router->get('pluginlist', ['uses' => 'OpenObjectsScraperPluginController@list']);
