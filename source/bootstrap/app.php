@@ -23,7 +23,7 @@ $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
 
-// $app->withFacades();
+ $app->withFacades();
 
 // $app->withEloquent();
 
@@ -84,6 +84,9 @@ $app->singleton(
 
 // Kafka event queue service provider
 $app->register(Rapide\LaravelQueueKafka\LumenQueueKafkaServiceProvider::class);
+
+// Plugin system provider
+$app->register(App\Providers\ScraperPluginServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
