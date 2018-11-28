@@ -5,6 +5,8 @@ namespace App\Providers\ScraperPluginServiceProvider;
 use Illuminate\Contracts\Container\Container;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 /**
  * ScraperPluginManager class.
@@ -30,7 +32,17 @@ class ScraperPluginManager
     /**
      * @var string
      */
+    protected $pluginBaseDirectory;
+
+    /**
+     * @var string
+     */
     protected $pluginDirectory;
+
+    /**
+     * @var string
+     */
+    protected $interface;
 
     /**
      * @var array
@@ -46,11 +58,17 @@ class ScraperPluginManager
      * PluginManager constructor.
      *
      * @param \Illuminate\Contracts\Container\Container $app - Application object
+     * @param string $pluginBaseDirectory
+     * @param string $interface
      */
-    public function __construct($app)
+    public function __construct($app, $pluginBaseDirectory = '', $interface = null)
     {
         $this->app             = $app;
-        $this->pluginDirectory = $app->path() . DIRECTORY_SEPARATOR . 'Plugins';
+        $this->pluginBaseDirectory = empty($pluginBaseDirectory) ? 'Plugins' : $pluginBaseDirectory;
+        $this->pluginDirectory = $app->path() . DIRECTORY_SEPARATOR . $this->pluginBaseDirectory;
+        $this->interface = empty($interface)
+            ? '\App\Providers\ScraperPluginServiceProvider\ScraperPluginInterface'
+            : $interface;
         // $this->pluginExtender  = new PluginExtender($this, $app);
 
         $this->bootPlugins();
@@ -98,19 +116,25 @@ class ScraperPluginManager
             $pluginClass = $this->getPluginClassNameFromDirectory($directoryName);
 
             if (!class_exists($pluginClass)) {
-                dd('Plugin ' . $directoryName . ' needs a ' . $directoryName . 'Plugin class.');
+                Log::error('Plugin ' . $directoryName . ' needs a ' . $directoryName . 'Plugin class.');
             }
 
             try {
+                /** @var ScraperPlugin $plugin */
                 $plugin = $this->app->makeWith($pluginClass, [$this->app]);
             } catch (\ReflectionException $e) {
-                dd('Plugin ' . $directoryName . ' could not be booted: "' . $e->getMessage() . '"');
-                exit;
+                Log::error('Plugin ' . $directoryName . ' could not be booted: "' . $e->getMessage() . '"');
+            }
+            try {
+                $reflector = new \ReflectionClass($pluginClass);
+                if (!($reflector->implementsInterface($this->interface))) {
+                    // Ignore plugins that do not implement the interface required.
+                    continue;
+                }
+            } catch (\ReflectionException $e) {
+                Log::error("Plugin {$directoryName} could not be booted: {$e->getMessage()}");
             }
 
-            if (!($plugin instanceof ScraperPlugin)) {
-                dd('Plugin ' . $directoryName . ' must extend the Plugin Base Class');
-            }
 
             $plugin->boot();
 
@@ -124,7 +148,7 @@ class ScraperPluginManager
      */
     protected function getPluginClassNameFromDirectory($directory)
     {
-        return "App\\Plugins\\${directory}\\${directory}Plugin";
+        return "App\\{$this->pluginBaseDirectory}\\${directory}\\${directory}Plugin";
     }
 
     /**
@@ -161,6 +185,23 @@ class ScraperPluginManager
     public function getPlugins()
     {
         return $this->plugins;
+    }
+
+    /**
+     * Get a plugin by name
+     *
+     * @param string $name - Plugin name.
+     *
+     * @return AbstractScraper
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function getPlugin($name)
+    {
+        if (empty($this->getPlugins()[$name])) {
+            throw new InvalidArgumentException('Missing plugin');
+        }
+        return $this->getPlugins()[$name];
     }
 
     /**

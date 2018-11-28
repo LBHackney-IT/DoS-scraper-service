@@ -1,29 +1,24 @@
 <?php
 
-namespace App\Plugins\OpenObjectsScraper;
+namespace App\Plugins\ApiScraper;
 
 use App\Providers\ScraperPluginServiceProvider\ScraperPlugin;
 
-/**
- * The ScraperPlugin base class
- *
- * @package App\Plugins\Scraper
- */
-class OpenObjectsScraperPlugin extends ScraperPlugin
+class ApiScraperPlugin extends ScraperPlugin
 {
     /**
      * The Plugin Name.
      *
      * @var string
      */
-    public $name = 'open_objects_scraper';
+    public $name = 'api_scraper';
 
     /**
      * A description of the plugin.
      *
      * @var string
      */
-    public $description = 'A scraper for Open Objects.';
+    public $description = 'A scraper for APis.';
 
     /**
      * The version of the plugin.
