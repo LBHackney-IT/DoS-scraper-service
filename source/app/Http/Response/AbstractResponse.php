@@ -52,6 +52,13 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
     protected $items;
 
     /**
+     * Item ID, if applicable.
+     *
+     * @var int
+     */
+    protected $id;
+
+    /**
      * AbstractResponse constructor.
      *
      * @param array $rawResponse
