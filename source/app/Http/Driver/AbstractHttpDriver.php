@@ -2,14 +2,14 @@
 
 namespace App\Http\Driver;
 
+use App\Http\Driver\Exception\HttpDriverClientException;
+use App\Http\Driver\Exception\HttpDriverServerException;
 use App\Http\Request\HttpInvalidRequestException;
 use App\Http\Request\RequestInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
-use Http\Driver\Exception\HttpDriverClientException;
-use Http\Driver\Exception\HttpDriverServerException;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 

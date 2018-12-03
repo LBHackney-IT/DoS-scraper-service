@@ -2,9 +2,6 @@
 
 namespace App\Http\Driver;
 
-
-use Http\Driver\Exception\HttpDriverClientException;
-
 /**
  * HTTP request/response driver.
  *
@@ -19,7 +16,7 @@ class HttpDriver extends AbstractHttpDriver
      * @param array $conf
      *   API request configuration array.
      *
-     * @throws \Http\Driver\Exception\HttpDriverClientException
+     * @throws \App\Http\Driver\Exception\HttpDriverClientException
      */
     public function __construct($conf)
     {

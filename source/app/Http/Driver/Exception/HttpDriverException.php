@@ -3,7 +3,7 @@
  * @file
  */
 
-namespace Http\Driver\Exception;
+namespace App\Http\Driver\Exception;
 
 use Exception;
 use Illuminate\Support\Facades\Log;

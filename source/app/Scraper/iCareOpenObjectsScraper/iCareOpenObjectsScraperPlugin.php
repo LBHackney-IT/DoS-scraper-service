@@ -1,29 +1,29 @@
 <?php
 
-namespace App\Scraper\OpenObjectsScraper;
+namespace App\Scraper\iCareOpenObjectsScraper;
 
-use App\Plugins\ApiScraper\Scraper\ApiScraperInterface;
+use App\Plugins\ApiScraper\Scraper\ApiScraper;
 
 /**
- * The ScraperPlugin base class
+ * A scraper for iCare Open Objects.
  *
- * @package App\Plugins\Scraper
+ * @package App\Scraper\OpenObjectsScraper
  */
-class OpenObjectsScraperPlugin implements ApiScraperInterface
+class iCareOpenObjectsScraperPlugin extends ApiScraper
 {
     /**
      * The Plugin Name.
      *
      * @var string
      */
-    public $name = 'open_objects_scraper';
+    public $name = 'icare_open_objects_scraper';
 
     /**
      * A description of the plugin.
      *
      * @var string
      */
-    public $description = 'A scraper for Open Objects.';
+    public $description = 'A scraper for the iCare Open Objects API.';
 
     /**
      * The version of the plugin.
@@ -38,6 +38,5 @@ class OpenObjectsScraperPlugin implements ApiScraperInterface
     public function boot()
     {
         // TODO: Implement boot() method.
-
     }
 }

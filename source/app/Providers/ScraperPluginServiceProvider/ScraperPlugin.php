@@ -73,9 +73,12 @@ abstract class ScraperPlugin implements ScraperPluginInterface
      */
     protected function enableRoutes($path = 'routes.php')
     {
-        $this->app->router->group(['namespace' => $this->getPluginControllerNamespace()], function ($app) use ($path) {
-            require $this->getPluginPath() . DIRECTORY_SEPARATOR . $path;
-        });
+        $this->app->router->group(
+            ['namespace' => $this->getPluginControllerNamespace()],
+            function ($router) use ($path) {
+                require $this->getPluginPath() . DIRECTORY_SEPARATOR . $path;
+            }
+        );
     }
 
     /**

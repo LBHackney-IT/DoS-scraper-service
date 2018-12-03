@@ -1,5 +1,6 @@
 <?php
 
-
-$this->app->router->get('scraper/api', ['uses' => 'ApiScraperController@get']);
-$this->app->router->post('scraper/api', ['uses' => 'ApiScraperController@post']);
+/** @var \Laravel\Lumen\Routing\Router $router */
+$router->group(['prefix' => 'scraper'], function () use ($router) {
+    $router->get('api', ['uses' => 'ApiScraperController@get']);
+});
