@@ -31,6 +31,12 @@ interface HttpDriverInterface
      */
     public function get($endpoint, RequestInterface $request = null);
 
+
+    /**
+     * At this stage, we are assuming we will only need to GET things from an API or web page,
+     * but we may need POST at a later stage. Probably not PUT or DELETE, tho.
+     */
+
     /**
      * Make a POST request.
      *
@@ -42,7 +48,7 @@ interface HttpDriverInterface
      * @return array
      *   Request response.
      */
-    public function post($endpoint, RequestPostInterface $request = null);
+//    public function post($endpoint, RequestPostInterface $request = null);
 
     /**
      * Make a PUT request.
@@ -55,7 +61,7 @@ interface HttpDriverInterface
      * @return array
      *   Request response.
      */
-    public function put($endpoint, RequestPutInterface $request = null);
+//    public function put($endpoint, RequestPutInterface $request = null);
 
     /**
      * Make a DELETE request.
@@ -68,5 +74,5 @@ interface HttpDriverInterface
      * @return array
      *   Request response.
      */
-    public function delete($endpoint, RequestInterface $request = null);
+//    public function delete($endpoint, RequestInterface $request = null);
 }

@@ -83,7 +83,7 @@ class AbstractHttpDriver implements HttpDriverInterface
     {
         $this->conf = $conf;
         if (empty($this->conf['base_url'])) {
-            throw new HttpDriverClientException(('The HTTP request driver requires a valid base URL');
+            throw new HttpDriverClientException('The HTTP request driver requires a valid base URL');
         }
         $this->baseUrl = $conf['base_url'];
 
@@ -95,7 +95,6 @@ class AbstractHttpDriver implements HttpDriverInterface
             $this->setHeader('X-Forwarded-For', $request->ip());
         }
     }
-
 
     /**
      * Get the options for Guzzle.
@@ -121,6 +120,7 @@ class AbstractHttpDriver implements HttpDriverInterface
      */
     public function get($endpoint, RequestInterface $request = null)
     {
+        $options = array();
         if ($request) {
             if ($errors = $request->validate()) {
                 throw new HttpInvalidRequestException(
@@ -139,14 +139,30 @@ class AbstractHttpDriver implements HttpDriverInterface
         } catch (ClientException $e) {
             // If you need to debug exceptions then you can do so nicely by
             // (string) $ex->getRequest() and (string) $ex->getResponse().
-            $this->logException(strtoupper(__FUNCTION__), $e->getResponse()->getHeaderLine('X-GUZZLE-EFFECTIVE-URL'), $options, $this->decodeError($e));
-            throw new HttpDriverServerException($$this->decodeError($e),$e->getCode(),  false, $e);
+            $this->logException(
+                strtoupper(__FUNCTION__),
+                $e->getResponse()->getHeaderLine('X-GUZZLE-EFFECTIVE-URL'),
+                $options,
+                $this->decodeError($e)
+            );
+            throw new HttpDriverServerException($$this->decodeError($e), $e->getCode(), false, $e);
         } catch (ServerException $e) {
             // Same here.
-            $this->logException(strtoupper(__FUNCTION__), $e->getResponse()->getHeaderLine('X-GUZZLE-EFFECTIVE-URL'), $options, $this->decodeError($e));
+            $this->logException(
+                strtoupper(__FUNCTION__),
+                $e->getResponse()->getHeaderLine('X-GUZZLE-EFFECTIVE-URL'),
+                $options,
+                $this->decodeError($e)
+            );
             throw new HttpDriverServerException($this->decodeError($e), $e->getCode(), false, $e);
         }
-        $this->logRequest(strtoupper(__FUNCTION__), $response->getHeaderLine('X-GUZZLE-EFFECTIVE-URL'), $options, !isset($response), $result);
+        $this->logRequest(
+            strtoupper(__FUNCTION__),
+            $response->getHeaderLine('X-GUZZLE-EFFECTIVE-URL'),
+            $options,
+            !isset($response),
+            $result
+        );
 
         return $result;
     }
@@ -160,9 +176,10 @@ class AbstractHttpDriver implements HttpDriverInterface
      * @return array
      *   Result array.
      */
-    public function getResponseResult(ResponseInterface $response) {
+    public function getResponseResult(ResponseInterface $response)
+    {
         // Get the response body.
-        $body = json_decode($response->getBody(), TRUE);
+        $body = json_decode($response->getBody(), true);
         // If the result is not an array set it to be an array.
         if (!is_array($body)) {
             $body = array($body);
@@ -224,7 +241,8 @@ class AbstractHttpDriver implements HttpDriverInterface
      *
      * @return string
      */
-    public function decodeError(BadResponseException $ex) {
+    public function decodeError(BadResponseException $ex)
+    {
         return ltrim($ex->getResponse()->getReasonPhrase(), ': ');
     }
 
@@ -237,7 +255,8 @@ class AbstractHttpDriver implements HttpDriverInterface
      * @param $cached
      * @param $response
      */
-    public function logRequest($method, $endpoint, $options, $cached, $response) {
+    public function logRequest($method, $endpoint, $options, $cached, $response)
+    {
         if (!$this->logType) {
             return;
         }
@@ -293,16 +312,17 @@ class AbstractHttpDriver implements HttpDriverInterface
      * @param $log_data
      * @param bool $exception
      */
-    protected function log($endpoint, $log_data, $exception = FALSE) {
+    protected function log($endpoint, $log_data, $exception = false)
+    {
 
         if (($this->logRequests && !$exception) || ($this->logExceptions && $exception)) {
             if ($this->logType == self::LOG_TYPE_DISPLAY) {
-                $log_display_function = (function_exists('dump') ? 'dsm' : 'print_r';
+                $log_display_function = function_exists('dump') ? 'dump' : 'print_r';
                 $log_display_function($log_data);
             }
 
             if ($this->logType == self::LOG_TYPE_LOG_FILE) {
-                $log_info = date('Y-m-d H:i:s') . ": Request to: $endpoint\n" . print_r($log_data, TRUE);
+                $log_info = date('Y-m-d H:i:s') . ": Request to: $endpoint\n" . print_r($log_data, true);
                 Log::error($log_info);
             }
         }
