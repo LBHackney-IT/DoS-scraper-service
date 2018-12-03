@@ -6,5 +6,4 @@ use App\Providers\ScraperPluginServiceProvider\ScraperPlugin;
 
 abstract class ApiScraper extends ScraperPlugin implements ApiScraperInterface
 {
-
 }

@@ -3,6 +3,7 @@
 namespace App\Providers\ScraperPluginServiceProvider;
 
 use Illuminate\Contracts\Container\Container as Application;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
@@ -36,6 +37,13 @@ abstract class ScraperPlugin implements ScraperPluginInterface
     public $version;
 
     /**
+     * The type of plugin.
+     *
+     * @var string
+     */
+    public $type;
+
+    /**
      * @var $this
      */
     private $reflector = null;
@@ -50,6 +58,7 @@ abstract class ScraperPlugin implements ScraperPluginInterface
     {
         $this->app = $app;
         $this->checkPluginName();
+        $this->setPluginType();
     }
 
     abstract public function boot();
@@ -63,6 +72,18 @@ abstract class ScraperPlugin implements ScraperPluginInterface
     {
         if (!$this->name) {
             throw new InvalidArgumentException('Missing plugin name.');
+        }
+    }
+
+    /**
+     * Set the plugin type.
+     */
+    private function setPluginType()
+    {
+        try {
+            $this->type = $this->getReflector()->getParentClass()->getShortName();
+        } catch (ReflectionException $e) {
+            Log::notice('Could not set plugin type: ' . $e->getMessage());
         }
     }
 
