@@ -61,6 +61,9 @@ abstract class ScraperPlugin implements ScraperPluginInterface
         $this->setPluginType();
     }
 
+    /**
+     * Boot-time commands.
+     */
     abstract public function boot();
 
     /**
@@ -129,7 +132,7 @@ abstract class ScraperPlugin implements ScraperPluginInterface
             $fileName  = $reflector->getFileName();
             return dirname($fileName);
         } catch (ReflectionException $e) {
-            dd('Plugin path could not be found: "' . $e->getMessage() . '"');
+            Log::notice('Plugin path could not be found: "' . $e->getMessage() . '"');
             exit;
         }
     }

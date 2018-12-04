@@ -4,6 +4,11 @@ namespace App\Scraper\ICareWebPageScraper;
 
 use App\Plugins\WebPageScraper\Scraper\WebPageScraper;
 
+/**
+ * Class ICareWebPageScraperPlugin
+ *
+ * @package App\Scraper\ICareWebPageScraper
+ */
 class ICareWebPageScraperPlugin extends WebPageScraper
 {
     /**

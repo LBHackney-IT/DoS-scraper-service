@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Plugins\iCareOpenObjectsScraper\Http\Controllers;
+namespace App\Scraper\ICareOpenObjectsScraper\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Providers\ScraperPluginServiceProvider\ScraperPluginManager;
 
 /**
- * Class OpenObjectsScraperPluginController
+ * Class ICareOpenObjectsScraperPluginController
  *
- * @package App\Plugins\OpenObjectsScraper\Http\Controllers
+ * @package App\Plugins\ICareOpenObjectsScraper\Http\Controllers
  */
-class iCareOpenObjectsScraperPluginController extends Controller
+class ICareOpenObjectsScraperPluginController extends Controller
 {
 
     /**

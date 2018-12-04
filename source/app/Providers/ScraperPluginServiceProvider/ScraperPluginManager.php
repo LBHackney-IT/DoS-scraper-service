@@ -90,13 +90,15 @@ class ScraperPluginManager
      * Get a plugin instance.
      *
      * @param \Illuminate\Contracts\Container\Container $app - Application object
+     * @param string $pluginBaseDirectory
+     * @param string $interface
      *
      * @return ScraperPluginManager
      */
-    public static function getInstance(Container $app)
+    public static function getInstance(Container $app, $pluginBaseDirectory = '', $interface = null)
     {
         if (is_null(self::$instance)) {
-            self::$instance = new self($app);
+            self::$instance = new self($app, $pluginBaseDirectory, $interface);
         }
 
         return self::$instance;

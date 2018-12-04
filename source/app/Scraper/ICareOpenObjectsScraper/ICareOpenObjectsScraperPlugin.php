@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Scraper\iCareOpenObjectsScraper;
+namespace App\Scraper\ICareOpenObjectsScraper;
 
 use App\Plugins\ApiScraper\Scraper\ApiScraper;
 
 /**
  * A scraper for iCare Open Objects.
  *
- * @package App\Scraper\OpenObjectsScraper
+ * @package App\Scraper\ICareOpenObjectsScraper
  */
-class iCareOpenObjectsScraperPlugin extends ApiScraper
+class ICareOpenObjectsScraperPlugin extends ApiScraper
 {
     /**
      * The Plugin Name.
@@ -37,6 +37,7 @@ class iCareOpenObjectsScraperPlugin extends ApiScraper
      */
     public function boot()
     {
-        // TODO: Implement boot() method.
+        // Add routing.
+        $this->enableRoutes();
     }
 }

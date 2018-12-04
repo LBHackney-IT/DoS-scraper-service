@@ -3,6 +3,7 @@
 namespace App\Plugins\ApiScraper;
 
 use App\Providers\ScraperPluginServiceProvider\ScraperPlugin;
+use App\Providers\ScraperPluginServiceProvider\ScraperPluginManager;
 
 class ApiScraperPlugin extends ScraperPlugin
 {
@@ -34,6 +35,7 @@ class ApiScraperPlugin extends ScraperPlugin
      */
     public function boot()
     {
+        ScraperPluginManager::getInstance($this->app, 'Scraper');
         $this->enableRoutes();
     }
 }
