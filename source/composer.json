@@ -9,6 +9,7 @@
         "ext-dom": "*",
         "ext-http": "*",
         "ext-json": "*",
+        "ext-http": "*",
         "guzzlehttp/guzzle": "^6.3",
         "laravel/lumen-framework": "5.7.*",
         "rapide/laravel-queue-kafka": "^1.0",

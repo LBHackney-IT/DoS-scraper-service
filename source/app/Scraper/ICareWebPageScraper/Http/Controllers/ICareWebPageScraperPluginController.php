@@ -6,6 +6,7 @@ use App\Http\Driver\Exception\HttpDriverClientException;
 use App\Http\Driver\Exception\HttpDriverServerException;
 use App\Plugins\WebPageScraper\Http\WebPageHttpServiceException;
 use App\Scraper\ICareWebPageScraper\Http\Request\GetICareServiceRequest;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * Class ICareWebPageScraperPluginController
@@ -29,6 +30,12 @@ class ICareWebPageScraperPluginController extends AbstractICareWebPageScraperPlu
             $request = new GetICareServiceRequest();
             $request->setQueryParameter('id', $id);
             $response = $this->service->iCareService($request);
+//            $html = $response->getData();
+//            $crawler = new Crawler($html);
+            $dom = [];
+//            foreach ($crawler->filter('body') as $domElement) {
+//                $dom[] = $domElement->nodeName;
+//            }
             return [
                 'message' => $this->service->getResponse()->getStatus(),
                 'code' => $this->service->getResponse()->getStatusCode(),
@@ -36,6 +43,7 @@ class ICareWebPageScraperPluginController extends AbstractICareWebPageScraperPlu
                 'id' => $id,
                 'response' => [
                     'headers' => $response->getResponseHeaders(),
+                    'dom' => $dom,
                 ],
             ];
         } catch (HttpDriverServerException $e) {
