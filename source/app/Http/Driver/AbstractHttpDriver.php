@@ -97,6 +97,8 @@ class AbstractHttpDriver implements HttpDriverInterface
         }
     }
 
+
+
     /**
      * Get the options for Guzzle.
      *
@@ -147,7 +149,7 @@ class AbstractHttpDriver implements HttpDriverInterface
                 $options,
                 $this->decodeError($e)
             );
-            throw new HttpDriverServerException($$this->decodeError($e), $e->getCode(), false, $e);
+            throw new HttpDriverServerException($this->decodeError($e), $e->getCode(), false, $e);
         } catch (ServerException $e) {
             // Same here.
             $this->logException(

@@ -16,6 +16,13 @@ abstract class WebPageHttpService implements WebPageHttpServiceInterface
     protected $driver;
 
     /**
+     * Configuration array.
+     *
+     * @var array
+     */
+    protected $conf;
+
+    /**
      * @var \App\Plugins\WebPageScraper\Http\Response\AbstractWebPageResponse
      */
     protected $response;
@@ -31,15 +38,17 @@ abstract class WebPageHttpService implements WebPageHttpServiceInterface
      * WebPageHttpService constructor.
      *
      * @param WebPageHttpDriver $driver
+     * @param array $conf
      *
      * @throws WebPageHttpServiceConfigurationException
      */
-    public function __construct(WebPageHttpDriver $driver)
+    public function __construct(WebPageHttpDriver $driver, array $conf = [])
     {
         if (!$driver->baseUrl) {
-            throw new WebPageHttpServiceConfigurationException('No base URL set for this service');
+            throw new WebPageHttpServiceConfigurationException('No base URL set for this service driver');
         }
         $this->driver = $driver;
+        $this->conf = $conf;
     }
 
     /**
@@ -50,6 +59,16 @@ abstract class WebPageHttpService implements WebPageHttpServiceInterface
     protected function getDriver(): WebPageHttpDriver
     {
         return $this->driver;
+    }
+
+    /**
+     * Get configuration.
+     *
+     * @return array
+     */
+    public function getConf(): array
+    {
+        return $this->conf;
     }
 
 
@@ -83,11 +102,10 @@ abstract class WebPageHttpService implements WebPageHttpServiceInterface
      * @param string $query
      *   A formatted query string.
      */
-    protected function setUrl($path, $query = null)
+    protected function setUrl($path)
     {
         $parts = parse_url($this->driver->baseUrl);
         $parts['path'] = empty($parts['path']) ? $path : "{$parts['path']}/{$path}";
-        $parts['query'] = $query;
         $this->url = $this->buildUrl($parts);
     }
 

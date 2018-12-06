@@ -25,7 +25,7 @@ class ICareWebPageScraperPluginHelloController extends AbstractICareWebPageScrap
             return response()->json([
                 'message' => $this->service->getResponse()->getStatus(),
                 'code' => $this->service->getResponse()->getStatusCode(),
-                'base_url' => $this->service->getUrl(),
+                'url' => $this->service->getUrl(),
             ]);
         } catch (HttpDriverClientException $e) {
             return $this->exceptionResponse($e);

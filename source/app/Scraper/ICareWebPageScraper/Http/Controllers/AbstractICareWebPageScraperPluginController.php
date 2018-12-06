@@ -13,13 +13,23 @@ use App\Scraper\ICareWebPageScraper\Http\ICareWebPageHttpService;
  */
 abstract class AbstractICareWebPageScraperPluginController extends Controller
 {
-    /** @var string */
+
+    /**
+     * @var string
+     */
     protected $baseUrl = 'https://www.hackneyicare.org.uk';
 
     /**
-     * @var \App\Plugins\WebPageScraper\Http\WebPageHttpService
+     * @var \App\Scraper\ICareWebPageScraper\Http\ICareWebPageHttpService
      */
     protected $service;
+
+    protected $conf;
+
+    public function __construct($conf = [])
+    {
+        $this->conf = array_merge(['base_url' => $this->baseUrl], $conf);
+    }
 
     /**
      * Make an HTTP service object for using in requests.
@@ -29,11 +39,8 @@ abstract class AbstractICareWebPageScraperPluginController extends Controller
      */
     protected function makeService()
     {
-        $conf = [
-            'base_url' => $this->baseUrl,
-        ];
-        $driver = new ICareWebPageHttpDriver($conf);
-        $this->service = new ICareWebPageHttpService($driver);
+        $driver = new ICareWebPageHttpDriver($this->conf);
+        $this->service = new ICareWebPageHttpService($driver, $this->conf);
     }
 
     /**
@@ -49,6 +56,7 @@ abstract class AbstractICareWebPageScraperPluginController extends Controller
                 'error' => true,
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
+                'url' => $this->service->getUrl(),
             ],
             $e->getCode()
         );
