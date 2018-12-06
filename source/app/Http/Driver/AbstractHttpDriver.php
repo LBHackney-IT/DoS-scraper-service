@@ -10,6 +10,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 
@@ -29,7 +30,7 @@ class AbstractHttpDriver implements HttpDriverInterface
      *
      * @var string
      */
-    protected $baseUrl;
+    public $baseUrl;
 
     /**
      * Guzzle client.
@@ -75,11 +76,10 @@ class AbstractHttpDriver implements HttpDriverInterface
      * AbstractHttpDriver constructor.
      *
      * @param array $conf - Driver configuration array.
-     * @param string $apiFormat - Format of the API if requested.
      *
      * @throws HttpDriverClientException
      */
-    public function __construct($conf, $apiFormat = null)
+    public function __construct(array $conf)
     {
         $this->conf = $conf;
         if (empty($this->conf['base_url'])) {
@@ -88,7 +88,7 @@ class AbstractHttpDriver implements HttpDriverInterface
         $this->baseUrl = $conf['base_url'];
 
         $this->client = new Client($this->getGuzzleOptions());
-        $this->apiFormat = isset($apiFormat) ? $apiFormat : $this->apiFormat;
+        $this->apiFormat = empty($this->conf['api_format']) ? $this->apiFormat : $this->conf['api_format'];
         if (!empty($this->conf['request'])) {
             /** @var \Illuminate\Http\Request $request */
             $request = $this->conf['request'];
@@ -117,6 +117,7 @@ class AbstractHttpDriver implements HttpDriverInterface
      *
      * @throws HttpInvalidRequestException
      * @throws HttpDriverServerException
+     * @throws HttpDriverClientException
      */
     public function get($endpoint, RequestInterface $request = null)
     {
@@ -155,6 +156,9 @@ class AbstractHttpDriver implements HttpDriverInterface
                 $this->decodeError($e)
             );
             throw new HttpDriverServerException($this->decodeError($e), $e->getCode(), false, $e);
+        } catch (GuzzleException $e) {
+            $code = get_class($e) == 'GuzzleHttp\Exception\ConnectException' ? 404 : $e->getCode();
+            throw new HttpDriverClientException($e->getMessage(), $code, false, $e);
         }
         $this->logRequest(
             strtoupper(__FUNCTION__),
@@ -189,7 +193,9 @@ class AbstractHttpDriver implements HttpDriverInterface
             'body' => $body,
             'statusCode' => $response->getStatusCode(),
             'status' => $response->getReasonPhrase(),
+            'headers' => $response->getHeaders(),
             'protocol' => $response->getProtocolVersion(),
+            'response' => $response,
         );
         // Are there any errors in the result body.
         if (!empty($body['errors'])) {

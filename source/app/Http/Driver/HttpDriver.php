@@ -18,7 +18,7 @@ class HttpDriver extends AbstractHttpDriver
      *
      * @throws \App\Http\Driver\Exception\HttpDriverClientException
      */
-    public function __construct($conf)
+    public function __construct(array $conf)
     {
         parent::__construct($conf);
 

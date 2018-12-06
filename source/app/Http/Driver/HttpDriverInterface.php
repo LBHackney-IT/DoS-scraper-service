@@ -16,7 +16,7 @@ interface HttpDriverInterface
      * @param array $conf
      *   Array of configuration parameters.
      */
-    public function __construct($conf);
+    public function __construct(array $conf);
 
     /**
      * Make a GET request.

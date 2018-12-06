@@ -323,6 +323,17 @@ abstract class AbstractRequest implements RequestInterface
     }
 
     /**
+     * Should this request use session authentication?
+     *
+     * @return bool
+     *   Use session auth flag.
+     */
+    public function useSessionAuth()
+    {
+        return $this->sessionAuth;
+    }
+
+    /**
      * Set the request X-CSRF-Token value.
      *
      * @param string $csrfToken

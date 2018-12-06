@@ -3,6 +3,7 @@
 namespace App\Http\Response;
 
 use App\Http\Request\HttpInvalidRequestException;
+use ArrayIterator;
 use IteratorAggregate;
 
 abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
@@ -47,7 +48,7 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
     /**
      * The content of the response.
      *
-     * @var array
+     * @var array|object|string
      */
     protected $items;
 
@@ -69,8 +70,6 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
     public function __construct(array $rawResponse)
     {
         $this->rawResponse = $rawResponse;
-        $this->setStatusCode($this->rawResponse['statusCode']);
-        $this->setStatus($this->rawResponse['status']);
         $this->processResponse();
     }
 
@@ -81,7 +80,10 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
      */
     protected function processResponse()
     {
-        // First, validate the response.
+        // First, set status and status code.
+        $this->setStatusCode($this->rawResponse['statusCode']);
+        $this->setStatus($this->rawResponse['status']);
+        // Next, validate the response.
         $this->validateResponse();
         // All good. Now, process the response.
         $data = $this->rawResponse['body'];
@@ -125,10 +127,24 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
     /**
      * Convert a list of items into model object(s).
      *
-     * @param array $items
-     *   Array of items from the response body.
+     * @param array|object $items
+     *   Array or object of items from the response body.
      */
-    abstract protected function buildItems(array $items);
+    abstract protected function buildItems($items);
+
+    /**
+     * Allow looping over the returned items.
+     *
+     * @return ArrayIterator
+     *   ArrayIterator object.
+     */
+    public function getIterator()
+    {
+        if (empty($this->items)) {
+            $this->items = array();
+        }
+        return new ArrayIterator($this->items);
+    }
 
     /**
      * Get response status code.
@@ -186,10 +202,48 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
     }
 
     /**
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function getResponse()
+    {
+        return $this->getRawResponse()['response'];
+    }
+
+    /**
+     * Get the response headers.
+     *
+     * @return array
+     */
+    public function getResponseHeaders()
+    {
+        return $this->getRawResponse()['headers'];
+    }
+
+    /**
+     * Get the response body.
+     *
+     * @return mixed
+     */
+    public function getBody()
+    {
+        return $this->getRawResponse()['body'];
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the response body items array or object.
+     *
+     * @return array|object
+     */
+    public function getItems()
+    {
+        return $this->items;
     }
 }

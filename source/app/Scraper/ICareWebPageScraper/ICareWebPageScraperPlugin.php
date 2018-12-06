@@ -29,5 +29,6 @@ class ICareWebPageScraperPlugin extends WebPageScraper
     public function boot()
     {
         // TODO: Implement boot() method.
+        $this->enableRoutes();
     }
 }
