@@ -6,6 +6,7 @@ use App\Http\Driver\Exception\HttpDriverClientException;
 use App\Http\Driver\Exception\HttpDriverServerException;
 use App\Http\Request\HttpInvalidRequestException;
 use App\Http\Request\RequestInterface;
+use App\Http\Response\ResponseResult;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
@@ -113,7 +114,7 @@ class AbstractHttpDriver implements HttpDriverInterface
      * @param string $endpoint
      * @param RequestInterface|null $request
      *
-     * @return array|bool
+     * @return \App\Http\Response\ResponseResult
      *
      * @throws HttpInvalidRequestException
      * @throws HttpDriverServerException
@@ -177,30 +178,31 @@ class AbstractHttpDriver implements HttpDriverInterface
      * @param \Psr\Http\Message\ResponseInterface $response
      *   Response object.
      *
-     * @return array
-     *   Result array.
+     * @return \App\Http\Response\ResponseResult
+     *   Result object.
      */
     public function getResponseResult(ResponseInterface $response)
     {
-        // Get the response body.
-        $body = json_decode($response->getBody(), true);
-        // If the result is not an array set it to be an array.
-        if (!is_array($body)) {
-            $body = array($body);
-        }
-        // Create the cacheable results array.
-        $result = array(
-            'body' => $body,
-            'statusCode' => $response->getStatusCode(),
-            'status' => $response->getReasonPhrase(),
-            'headers' => $response->getHeaders(),
-            'protocol' => $response->getProtocolVersion(),
-            'response' => $response,
-        );
-        // Are there any errors in the result body.
-        if (!empty($body['errors'])) {
-            $result['errors'] = $body['errors'];
-        }
+//        // Get the response body.
+//        $body = json_decode($response->getBody(), true);
+//        // If the result is not an array set it to be an array.
+//        if (!is_array($body)) {
+//            $body = array($body);
+//        }
+//        // Create the cacheable results array.
+//        $result = array(
+//            'body' => $body,
+//            'statusCode' => $response->getStatusCode(),
+//            'status' => $response->getReasonPhrase(),
+//            'headers' => $response->getHeaders(),
+//            'protocol' => $response->getProtocolVersion(),
+//            'response' => $response,
+//        );
+        $result = new ResponseResult($response);
+//        // Are there any errors in the result body.
+//        if (!empty($body['errors'])) {
+//            $result['errors'] = $body['errors'];
+//        }
         return $result;
     }
 
@@ -259,7 +261,7 @@ class AbstractHttpDriver implements HttpDriverInterface
      * @param $endpoint
      * @param $options
      * @param $cached
-     * @param $response
+     * @param \App\Http\Response\ResponseResult $response
      */
     public function logRequest($method, $endpoint, $options, $cached, $response)
     {

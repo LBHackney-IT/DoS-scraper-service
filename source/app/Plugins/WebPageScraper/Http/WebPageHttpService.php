@@ -86,7 +86,7 @@ abstract class WebPageHttpService implements WebPageHttpServiceInterface
     protected function setUrl($path, $query = null)
     {
         $parts = parse_url($this->driver->baseUrl);
-        $parts['path'] = $path;
+        $parts['path'] = empty($parts['path']) ? $path : "{$parts['path']}/{$path}";
         $parts['query'] = $query;
         $this->url = $this->buildUrl($parts);
     }

@@ -9,28 +9,34 @@ use IteratorAggregate;
 abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
 {
     /**
-     * The raw response.
+     * A response result object.
      *
-     * E.g. decoded JSON data.
-     *
-     * @var array
+     * @var \App\Http\Response\ResponseResult
      */
-    protected $rawResponse;
+    protected $responseResult;
 
     /**
-     * Response code.
+     * Response body data.
      *
-     * @var int
+     * @var mixed
      */
-    protected $statusCode;
+    protected $data;
 
-    /**
-     * Response status.
-     *
-     * @var string
-     */
-    protected $status;
-
+//
+//    /**
+//     * Response code.
+//     *
+//     * @var int
+//     */
+//    protected $statusCode;
+//
+//    /**
+//     * Response status.
+//     *
+//     * @var string
+//     */
+//    protected $status;
+//
     /**
      * Failure reason, if applicable.
      *
@@ -46,30 +52,16 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
     protected $failureCode;
 
     /**
-     * The content of the response.
-     *
-     * @var array|object|string
-     */
-    protected $items;
-
-    /**
-     * Item ID, if applicable.
-     *
-     * @var int
-     */
-    protected $id;
-
-    /**
      * AbstractResponse constructor.
      *
-     * @param array $rawResponse
-     *   The raw response from the HTTP request. Individual items will be found by implementing classes.
+     * @param \App\Http\Response\ResponseResult $responseResult
+     *   The response result object from the HTTP request. Individual items will be found by implementing classes.
      *
      * @throws \App\Http\Request\HttpInvalidRequestException
      */
-    public function __construct(array $rawResponse)
+    public function __construct($responseResult)
     {
-        $this->rawResponse = $rawResponse;
+        $this->responseResult = $responseResult;
         $this->processResponse();
     }
 
@@ -80,17 +72,17 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
      */
     protected function processResponse()
     {
-        // First, set status and status code.
-        $this->setStatusCode($this->rawResponse['statusCode']);
-        $this->setStatus($this->rawResponse['status']);
+//        // First, set status and status code.
+//        $this->setStatusCode($this->getResponseResult()->getStatusCode());
+//        $this->setStatus($this->rawResponse['status']);
         // Next, validate the response.
         $this->validateResponse();
         // All good. Now, process the response.
-        $data = $this->rawResponse['body'];
-        if (!empty($this->rawResponse['id'])) {
-            $this->id = $this->rawResponse['id'];
-        }
-        $this->items = $this->buildItems($data);
+        $this->data = $this->getBody()->getContents();
+//        if (!empty($this->rawResponse['id'])) {
+//            $this->id = $this->rawResponse['id'];
+//        }
+//        $this->items = $this->buildItems($data);
     }
 
     /**
@@ -107,30 +99,8 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
 
         $this->failureCode = $this->getStatusCode();
         $this->failureReason = $this->getStatus();
-
-        // Are there field errors?
-        if (!empty($this->rawResponse['errors'])) {
-            $errors = array();
-            foreach ($this->rawResponse['errors'] as $error) {
-                $errors[] = t('@field: @message', array(
-                    '@field' => $error['field'],
-                    '@message' => $error['message'],
-                ));
-            }
-            $this->failureReason = implode('; ', $errors);
-            throw new HttpInvalidRequestException($this->failureCode . ' : ' . $this->failureReason);
-        } else {
-            throw new HttpInvalidRequestException($this->failureCode . ' : ' . $this->failureReason);
-        }
+        throw new HttpInvalidRequestException($this->failureCode . ' | ' . $this->failureReason);
     }
-
-    /**
-     * Convert a list of items into model object(s).
-     *
-     * @param array|object $items
-     *   Array or object of items from the response body.
-     */
-    abstract protected function buildItems($items);
 
     /**
      * Allow looping over the returned items.
@@ -154,18 +124,7 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
      */
     public function getStatusCode()
     {
-        return $this->statusCode;
-    }
-
-    /**
-     * Set the response status code.
-     *
-     * @param int $statusCode
-     *   Response status code.
-     */
-    public function setStatusCode($statusCode)
-    {
-        $this->statusCode = $statusCode;
+        return $this->getResponseResult()->getStatusCode();
     }
 
     /**
@@ -176,37 +135,28 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
      */
     public function getStatus()
     {
-        return $this->status;
-    }
-
-    /**
-     * Set the response status.
-     *
-     * @param string $status
-     *   Response status.
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
+        return $this->getResponseResult()->getStatus();
     }
 
     /**
      * Get the raw response.
      *
-     * @return array
-     *   The raw response.
+     * @return \App\Http\Response\ResponseResult
+     *   The response result object.
      */
-    public function getRawResponse()
+    public function getResponseResult()
     {
-        return $this->rawResponse;
+        return $this->responseResult;
     }
 
     /**
+     * Get the Guzzle response object.
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getResponse()
     {
-        return $this->getRawResponse()['response'];
+        return $this->getResponseResult()->getResponse();
     }
 
     /**
@@ -216,25 +166,27 @@ abstract class AbstractResponse implements ResponseInterface, IteratorAggregate
      */
     public function getResponseHeaders()
     {
-        return $this->getRawResponse()['headers'];
+        return $this->getResponseResult()->getHeaders();
     }
 
     /**
-     * Get the response body.
+     * Get the response body stream interface.
      *
-     * @return mixed
+     * @return \Psr\Http\Message\StreamInterface
      */
     public function getBody()
     {
-        return $this->getRawResponse()['body'];
+        return $this->getResponseResult()->getBody();
     }
 
     /**
-     * {@inheritdoc}
+     * Get the body content data.
+     *
+     * @return mixed
      */
-    public function getId()
+    public function getData()
     {
-        return $this->id;
+        return $this->data;
     }
 
     /**

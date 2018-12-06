@@ -17,7 +17,7 @@ interface ResponseResultInterface
     /**
      * Set the Guzzle Response object.
      *
-     * @param ResponseInterface $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      *
      * @return void
      */
@@ -38,9 +38,17 @@ interface ResponseResultInterface
     public function getStatus();
 
     /**
+     * Retrieves the HTTP protocol version as a string.
+     *
+     * @return string
+     */
+    public function getProtocolVersion();
+
+    /**
      * Get the response headers.
      *
      * @return array
+     *   Headers array.
      */
     public function getHeaders();
 
@@ -48,6 +56,7 @@ interface ResponseResultInterface
      * Get the response body.
      *
      * @return \Psr\Http\Message\StreamInterface
+     *   Returns the body as a stream.
      */
     public function getBody();
 }
