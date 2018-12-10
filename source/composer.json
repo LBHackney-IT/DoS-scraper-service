@@ -9,10 +9,10 @@
         "ext-dom": "*",
         "ext-http": "*",
         "ext-json": "*",
-        "ext-http": "*",
         "guzzlehttp/guzzle": "^6.3",
         "laravel/lumen-framework": "5.7.*",
         "rapide/laravel-queue-kafka": "^1.0",
+        "symfony/css-selector": "^4.2",
         "symfony/dom-crawler": "^4.1",
         "vlucas/phpdotenv": "~2.2"
     },
