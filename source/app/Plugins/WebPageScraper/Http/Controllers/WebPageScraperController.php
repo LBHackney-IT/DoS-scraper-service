@@ -33,23 +33,4 @@ class WebPageScraperController extends Controller
         $pluginManager = new ScraperPluginManager($app, 'Scraper', $this->interface);
         return $pluginManager->getPlugins();
     }
-
-    /**
-     * @return array
-     */
-    public function get()
-    {
-        return ['one', 'two', 'three'];
-    }
-
-    /**
-     * @return void
-     */
-    public function post()
-    {
-        $args = func_get_args();
-        dd($args);
-        exit;
-//        return $args;
-    }
 }

@@ -2,18 +2,18 @@
 
 namespace App\Scraper\ICareWebPageScraper\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Plugins\WebPageScraper\Http\Controllers\AbstractWebPageScraperController;
 use App\Scraper\ICareWebPageScraper\Http\Driver\ICareWebPageHttpDriver;
 use App\Scraper\ICareWebPageScraper\Http\ICareWebPageHttpService;
+use Illuminate\Http\Request;
 
 /**
  * Class ICareWebPageScraperPluginController
  *
  * @package App\Scraper\ICareWebPageScraper\Http\Controllers
  */
-abstract class AbstractICareWebPageScraperPluginController extends Controller
+abstract class AbstractICareWebPageScraperPluginController extends AbstractWebPageScraperController
 {
-
     /**
      * @var string
      */
@@ -24,41 +24,18 @@ abstract class AbstractICareWebPageScraperPluginController extends Controller
      */
     protected $service;
 
-    protected $conf;
-
-    public function __construct($conf = [])
+    public function __construct(Request $request, $conf = [])
     {
-        $this->conf = array_merge(['base_url' => $this->baseUrl], $conf);
+        $conf = array_merge(['base_url' => $this->baseUrl], $conf);
+        parent::__construct($request, $conf);
     }
 
     /**
-     * Make an HTTP service object for using in requests.
-     *
-     * @throws \App\Http\Driver\Exception\HttpDriverClientException
-     * @throws \App\Plugins\WebPageScraper\Http\WebPageHttpServiceException
+     * {@inheritdoc}
      */
     protected function makeService()
     {
         $driver = new ICareWebPageHttpDriver($this->conf);
         $this->service = new ICareWebPageHttpService($driver, $this->conf);
-    }
-
-    /**
-     * Consistent formatting of Exception responses into a JSON response.
-     *
-     * @param \Exception $e
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function exceptionResponse(\Exception $e)
-    {
-        return response()->json(
-            [
-                'error' => true,
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'url' => $this->service->getUrl(),
-            ],
-            $e->getCode()
-        );
     }
 }

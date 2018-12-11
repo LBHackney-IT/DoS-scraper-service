@@ -8,7 +8,6 @@ use App\Http\Request\HttpInvalidRequestException;
 use App\Plugins\WebPageScraper\Http\WebPageHttpServiceException;
 use App\Scraper\ICareWebPageScraper\Http\Request\GetICareServiceRequest;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Symfony\Component\DomCrawler\Crawler;
 
 /**
@@ -19,24 +18,9 @@ use Symfony\Component\DomCrawler\Crawler;
 class ICareWebPageScraperPluginController extends AbstractICareWebPageScraperPluginController
 {
     /**
-     * @var Request – Lumen request object.
-     */
-    protected $request;
-
-    /**
      * @var string - The base path on the iCare website.
      */
     protected $path = '/kb5/hackney/asch/service.page';
-
-    /**
-     * @var array - Request query array.
-     */
-    protected $query;
-
-    /**
-     * @var array
-     */
-    protected $extract;
 
     /**
      * ICareWebPageScraperPluginController constructor.
@@ -48,37 +32,41 @@ class ICareWebPageScraperPluginController extends AbstractICareWebPageScraperPlu
      */
     public function __construct(Request $request, array $conf = [])
     {
-        $this->request = $request;
         $conf['path'] = $this->path;
-        parent::__construct($conf);
-        $this->setRequestQuery();
-        if (empty($this->query['selector'])) {
-            throw new HttpInvalidRequestException('Please set a CSS selector', 422);
-        }
-        if (!empty($this->query['extract'])) {
-            $this->extract = is_array($this->query['extract']) ? $this->query['extract'] : [$this->query['extract']];
-        } else {
-            $this->extract = ['_text'];
-        }
+        parent::__construct($request, $conf);
     }
 
+    /**
+     * Retrieve stuff from a service page on the Hackney iCare website.
+     *
+     * @param string $id – Service id on the Hackney iCare web site.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function retrieve($id)
     {
         try {
+            // Create the request/response service.
             $this->makeService();
+            // Prepare the request.
             $request = new GetICareServiceRequest();
             $request->setQueryParameter('id', $id);
+            // Do the request and get the response.
             $response = $this->service->iCareService($request);
+            // Assume the status code from the iCare website is good place to start.
             $status = $this->service->getResponse()->getStatusCode();
-            // The data to return.
+            // Build the data to return.
             $build = [
                 'message' => $this->service->getResponse()->getStatus(),
                 'code' => null,
                 'url' => current($response->getResponseHeaders()['X-GUZZLE-EFFECTIVE-URL']),
                 'id' => $id,
             ];
+            // Get the iCare service page data from the response.
             $html = $response->getData();
+            // A crawler tool to traverse the data with a CSS selector.
             $crawler = new Crawler($html);
+            // Page title.
             $build['label'] = $crawler->filter('#content > h1')->text();
             $dom = [];
             if (!empty($this->query['selector'])) {
@@ -103,7 +91,7 @@ class ICareWebPageScraperPluginController extends AbstractICareWebPageScraperPlu
                 'dom' => $dom,
                 'headers' => $response->getResponseHeaders(),
             ];
-            return Response::create($build, $status);
+            return response()->json($build, $status);
         } catch (HttpDriverServerException $e) {
             return $this->exceptionResponse($e);
         } catch (HttpDriverClientException $e) {
@@ -114,79 +102,4 @@ class ICareWebPageScraperPluginController extends AbstractICareWebPageScraperPlu
             return $this->exceptionResponse($e);
         }
     }
-
-    /**
-     * Set the query from the request.
-     */
-    protected function setRequestQuery()
-    {
-        $qs = $this->request->getQueryString();
-        parse_str($qs, $query);
-        $this->query = $query;
-    }
-
-    /**
-     * Cleanup multi-line text.
-     *
-     * Tidy up messy markup on the way.
-     *
-     * @param string $text - Text string.
-     *
-     * @return string - Cleaner text string.
-     */
-    protected function multiLineTextCleanup($text)
-    {
-        // Remove multiple tabs.
-        $text = preg_replace('/[\t]+/S', "", $text);
-        // Convert multiple spaces to single spaces.
-        $text = preg_replace('/[ ]+/S', " ", $text);
-        // Convert multiple new lines (unix or windoze) to new lines.
-        $text = preg_replace('/[\r\n]+/S', "\n", $text);
-        // Finally trim whitespace.
-        return trim($text);
-    }
-
-    /**
-     * Extract stuff from the CSS selector results.
-     *
-     * @param Crawler $crawler
-     *
-     * @return array
-     */
-    private function extractor(Crawler $crawler)
-    {
-        $dom = [];
-        foreach ($this->extract as $type) {
-            $extracted = null;
-            switch ($type) {
-                case '_text':
-                    $extracted = $this->extractText($crawler);
-                    break;
-
-                default:
-                    $extracted = $crawler->extract([$type]);
-            }
-            if (isset($extracted)) {
-                $dom[$type] = $extracted;
-            }
-        }
-        return $dom;
-    }
-
-    /**
-     * Extract (and clean) text from a selected DOM node.
-     *
-     * @param Crawler $crawler
-     *
-     * @return array
-     */
-    private function extractText(Crawler $crawler)
-    {
-        $dom = [
-            'raw' => $crawler->text(),
-            'clean' => $this->multiLineTextCleanup($crawler->text()),
-        ];
-        return $dom;
-    }
-
 }
