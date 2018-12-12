@@ -29,7 +29,12 @@ abstract class AbstractWebPageScraperController extends Controller
      */
     protected $conf;
 
-    private $selectorRequired = true;
+    /**
+     * Does this controller need to use a CSS selector?
+     *
+     * @var bool
+     */
+    protected $selectorRequired = true;
 
     /**
      * ICareWebPageScraperPluginController constructor.
