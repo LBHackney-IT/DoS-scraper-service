@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a3ecf1f8edac31ed6cfc82f9b3bfb45d",
+    "content-hash": "e1fa4fea81764ce7f7ceb28db0356923",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -1499,6 +1499,40 @@
                 "lumen"
             ],
             "time": "2018-11-15T17:05:57+00:00"
+        },
+        {
+            "name": "lbhackney-it/dos-scraper-package-icare-web",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:LBHackney-IT/DoS-scraper-package-icare-web.git",
+                "reference": "80148f9e60a30a753a0ca2a312056ead852993d6"
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-http": "*",
+                "php": ">=7.1.3",
+                "symfony/css-selector": "^4.2",
+                "symfony/dom-crawler": "^4.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "ICareWebPageScraper\\Laravel\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ICareWebPageScraper\\": "src/ICareWebPageScraper/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "A Laravel Lumen package for the DoS scraper microservice, to retrieve pages from the Hackney iCare web site.",
+            "time": "2018-12-12T16:19:46+00:00"
         },
         {
             "name": "monolog/monolog",
