@@ -12,6 +12,7 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
 
@@ -95,9 +96,11 @@ class AbstractHttpDriver implements HttpDriverInterface
             $request = $this->conf['request'];
             $this->setHeader('X-Forwarded-For', $request->ip());
         }
+
+        $this->logRequests = config('httpdriver.log_requests');
+        $this->logExceptions = config('httpdriver.log_exceptions');
+        $this->logWithBacktrace = config('httpdriver.log_with_backtrace');
     }
-
-
 
     /**
      * Get the options for Guzzle.
@@ -107,7 +110,13 @@ class AbstractHttpDriver implements HttpDriverInterface
      */
     public function getGuzzleOptions()
     {
-        return array();
+        $options = [];
+        $options['base_uri'] = $this->baseUrl;
+        // Add effective URL Guzzle middleware handler.
+        $stack = HandlerStack::create();
+        $stack->push(HttpEffectiveUrlMiddleware::middleware());
+        $options['handler'] = $stack;
+        return $options;
     }
 
     /**

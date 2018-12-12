@@ -29,5 +29,4 @@ class ScraperPluginServiceProvider extends ServiceProvider
             }
         );
     }
-
 }

@@ -11,7 +11,7 @@ abstract class WebPageHttpService implements WebPageHttpServiceInterface
 {
 
     /**
-     * @var WebPageHttpDriver
+     * @var \App\Plugins\WebPageScraper\Http\Driver\WebPageHttpDriver
      */
     protected $driver;
 

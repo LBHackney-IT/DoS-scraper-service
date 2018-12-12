@@ -3,8 +3,6 @@
 namespace App\Http\Driver;
 
 use App\Http\Request\RequestInterface;
-//use App\Http\Request\RequestPostInterface;
-//use App\Http\Request\RequestPutInterface;
 
 interface HttpDriverInterface
 {
