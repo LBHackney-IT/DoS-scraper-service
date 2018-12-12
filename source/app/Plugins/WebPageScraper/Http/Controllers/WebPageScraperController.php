@@ -31,7 +31,6 @@ class WebPageScraperController extends Controller
     {
 
         $app = app();
-        dump($app);
         $pluginManager = new ScraperPluginManager($app, 'Scraper', $this->interface);
         return $pluginManager->getPlugins();
     }
