@@ -95,6 +95,9 @@ $app->register(Rapide\LaravelQueueKafka\LumenQueueKafkaServiceProvider::class);
 // Plugin system provider
 $app->register(App\Providers\ScraperPluginServiceProvider::class);
 
+// Register the ICare web page scraper
+$app->register(ICareWebPageScraper\ICareWebPageScraperServiceProvider::class);
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
