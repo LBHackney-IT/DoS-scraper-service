@@ -2,15 +2,38 @@
 
 namespace App\Plugins\WebPageScraper\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Plugins\WebPageScraper\WebPageScraperPlugin;
 use App\Providers\ScraperPluginServiceProvider\ScraperPluginManager;
+use ReflectionException;
 
-class WebPageScraperController extends Controller
+class WebPageScraperController extends AbstractWebPageScraperController
 {
+
     /**
-     * @var string
+     * @var array
      */
-    protected $interface = '\App\Plugins\WebPageScraper\Scraper\WebPageScraperInterface';
+    private $plugins = [];
+
+    /**
+     * @var \Laravel\Lumen\Application
+     */
+    protected $app;
+
+    /**
+     * WebPageScraperController constructor.
+     */
+    public function __construct()
+    {
+        $this->app = app();
+    }
+
+    /**
+     * return void
+     */
+    protected function makeService()
+    {
+        // TODO: Implement makeService() method.
+    }
 
     /**
      * List plugins.
@@ -19,19 +42,20 @@ class WebPageScraperController extends Controller
      */
     public function plugins()
     {
-        $app = app();
-        $pluginManager = new ScraperPluginManager($app);
+        $pluginManager = new ScraperPluginManager($this->app);
         return $pluginManager->getPlugins();
     }
 
     /**
-     * @return array
+     * @return \Illuminate\Http\JsonResponse
      */
     public function webPlugins()
     {
-
-        $app = app();
-        $pluginManager = new ScraperPluginManager($app, 'Scraper', $this->interface);
-        return $pluginManager->getPlugins();
+        try {
+            $webScraperPlugin = new WebPageScraperPlugin($this->app);
+            return response()->json($webScraperPlugin->getWebPlugins());
+        } catch (ReflectionException $e) {
+            return $this->exceptionResponse($e);
+        }
     }
 }
