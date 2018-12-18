@@ -1,21 +1,21 @@
 version: "3"
 
 services:
-  mariadb:
-    image: wodby/mariadb:$MARIADB_TAG
-    container_name: "${PROJECT_NAME}_mariadb"
-    stop_grace_period: 30s
-    environment:
-      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
-      MYSQL_DATABASE: $DB_NAME
-      MYSQL_USER: $DB_USER
-      MYSQL_PASSWORD: $DB_PASSWORD
-    volumes:
-      - project-db-data:/var/lib/mysql
-#      - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
-#      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
-    ports:
-      - "3366:3306"
+#  mariadb:
+#    image: wodby/mariadb:$MARIADB_TAG
+#    container_name: "${PROJECT_NAME}_mariadb"
+#    stop_grace_period: 30s
+#    environment:
+#      MYSQL_ROOT_PASSWORD: $DB_ROOT_PASSWORD
+#      MYSQL_DATABASE: $DB_NAME
+#      MYSQL_USER: $DB_USER
+#      MYSQL_PASSWORD: $DB_PASSWORD
+#    volumes:
+#      - project-db-data:/var/lib/mysql
+##      - ./mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
+##      - /path/to/mariadb/data/on/host:/var/lib/mysql # I want to manage volumes manually.
+#    ports:
+#      - "3366:3306"
 
 #  postgres:
 #    image: wodby/postgres:$POSTGRES_TAG
@@ -243,8 +243,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-volumes:
-  project-db-data:
+#volumes:
+#  project-db-data:
 ## Docker-sync for macOS users
 #  docker-sync:
 #    external: true
