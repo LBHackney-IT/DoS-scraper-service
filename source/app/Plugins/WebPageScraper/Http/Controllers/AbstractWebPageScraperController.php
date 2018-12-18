@@ -17,7 +17,17 @@ abstract class AbstractWebPageScraperController extends Controller
     /**
      * @var array - Request query array.
      */
-    protected $query;
+    protected $query = [];
+
+    /**
+     * @var array - Array of CSS selectors.
+     */
+    protected $cssSelectors = [];
+
+    /**
+     * @var array - Array of extractors.
+     */
+    protected $extractors = [];
 
     /**
      * @var array
@@ -53,11 +63,6 @@ abstract class AbstractWebPageScraperController extends Controller
         if ($this->selectorRequired && empty($this->query['selector'])) {
             throw new HttpInvalidRequestException('Please set a CSS selector', 422);
         }
-        if (!empty($this->query['extract'])) {
-            $this->extract = is_array($this->query['extract']) ? $this->query['extract'] : [$this->query['extract']];
-        } else {
-            $this->extract = ['_text'];
-        }
     }
 
     /**
@@ -68,6 +73,22 @@ abstract class AbstractWebPageScraperController extends Controller
         $qs = $this->request->getQueryString();
         parse_str($qs, $query);
         $this->query = $query;
+        // Set CSS selectors.
+        if (!empty($this->query['selector'])) {
+            $this->cssSelectors = is_array($this->query['selector'])
+                ? $this->query['selector']
+                : [$this->query['selector']];
+        }
+        // Set extractors for each selector.
+        foreach ($this->cssSelectors as $id => $selector) {
+            $this->extractors[$id] = empty($this->query['extract'][$id])
+                ? ['_text']
+                : (
+                    is_array($this->query['extract'][$id])
+                        ? $this->query['extract'][$id]
+                        : [$this->query['extract'][$id]]
+                );
+        }
     }
 
     /**
@@ -97,16 +118,53 @@ abstract class AbstractWebPageScraperController extends Controller
     abstract protected function makeService();
 
     /**
+     * Select content from a web page given a Symfony dom crawler object.
+     *
+     * @param Crawler $crawler - A Symfony dom crawler object
+     *
+     * @return array - array of extracted content, or error messages.
+     */
+    protected function selector(Crawler $crawler)
+    {
+        $build = [
+            'status' => 200,
+        ];
+        if (!empty($this->cssSelectors)) {
+            foreach ($this->cssSelectors as $id => $selector) {
+                try {
+                    $selected = $crawler->filter($selector);
+                    $build['items'][] = [
+                        'selector' => $selector,
+                        'extracted' => $this->extractor($id, $selected),
+                        'code' => 200,
+                    ];
+                } catch (\InvalidArgumentException $e) {
+                    $build['message'] = sprintf(
+                        'No data could be retrieved with the current selector: %s',
+                        $this->query['selector']
+                    );
+                    $build['code'] = 422;
+                }
+            }
+        } else {
+            $build['message'] = 'Please set a CSS selector';
+            $build['status'] = 400;
+        }
+        return $build;
+    }
+
+    /**
      * Extract stuff from the CSS selector results.
      *
-     * @param Crawler $crawler
+     * @param int $id - ID of the content to be selected.
+     * @param Crawler $crawler - Dom crawler object for the content to be extracted.
      *
-     * @return array
+     * @return array - Extracted content.
      */
-    protected function extractor(Crawler $crawler)
+    protected function extractor($id, Crawler $crawler)
     {
         $dom = [];
-        foreach ($this->extract as $type) {
+        foreach ($this->extractors[$id] as $type) {
             $extracted = null;
             switch ($type) {
                 case '_text':
