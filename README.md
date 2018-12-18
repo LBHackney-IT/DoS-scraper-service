@@ -2,7 +2,7 @@
 
 The scraper microservice pulls in data from external data sources. It is built with a plug-in architecture, so that scapers or crawlers for a variety of external sources can be created.
 
-Once data has been scraped, it should be put into the system [event stream](./eventstream) to create or update entries in the [data store](./datastore).
+Once data has been scraped, it should be put into the system [event stream](https://github.com/LBHackney-IT/DoS-event-stream-service) to create or update entries in the [data store](./datastorehttps://github.com/LBHackney-IT/DoS-data-store-service).
 
 Full documentation can be found in the system documentation microsite at https://lbhackney-it.github.io/lbhc-docs/.
 
