@@ -64,16 +64,6 @@ return [
             'retry_after' => 90,
             'block_for' => null,
         ],
-
-        'kafka' => [
-            'driver' => 'kafka',
-            'queue' => env('KAFKA_QUEUE', 'default'),
-            'consumer_group_id' => env('KAFKA_CONSUMER_GROUP_ID', 'lumen_queue'),
-            'brokers' => env('KAFKA_BROKERS', 'localhost'),
-            'sleep_on_error' => env('KAFKA_ERROR_SLEEP', 5),
-            'sleep_on_deadlock' => env('KAFKA_DEADLOCK_SLEEP', 2),
-        ],
-
     ],
 
     /*

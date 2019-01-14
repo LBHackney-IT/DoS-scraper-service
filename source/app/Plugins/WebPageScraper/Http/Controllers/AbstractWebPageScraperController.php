@@ -5,6 +5,12 @@ namespace App\Plugins\WebPageScraper\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Request\HttpInvalidRequestException;
 use Illuminate\Http\Request;
+use Rapide\LaravelQueueKafka\Queue\KafkaQueue;
+use RdKafka\Conf;
+use RdKafka\Producer;
+use RdKafka\KafkaConsumer;
+use RdKafka\TopicConf;
+
 use Symfony\Component\DomCrawler\Crawler;
 
 abstract class AbstractWebPageScraperController extends Controller
@@ -47,6 +53,17 @@ abstract class AbstractWebPageScraperController extends Controller
     protected $selectorRequired = true;
 
     /**
+     * @var RdKafka\Producer
+     */
+    protected $producer;
+    protected $consumer;
+    protected $container;
+    protected $queue;
+    protected $queueConfig = [
+        'sleep_error' => true,
+    ];
+
+    /**
      * ICareWebPageScraperPluginController constructor.
      *
      * @param Request $request
@@ -63,6 +80,26 @@ abstract class AbstractWebPageScraperController extends Controller
         if ($this->selectorRequired && empty($this->query['selector'])) {
             throw new HttpInvalidRequestException('Please set a CSS selector', 422);
         }
+
+        $this->producer = new Producer();
+        $this->producer->addBrokers($this->getKafkaQueueBrokers());
+        $conf = new Conf();
+        $consumer_group_id = config('queue.connections.kafka.consumer_group_id');
+        $conf->set('group.id', $consumer_group_id);
+        // Initial list of Kafka brokers
+        $conf->set('metadata.broker.list', $this->getKafkaQueueBrokers());
+        $topicConf = new TopicConf();
+        $topicConf->set('auto.offset.reset', 'smallest');
+        $this->producer->newTopic($this->getKafkaQueueName(), $topicConf);
+        $conf->setDefaultTopicConf($topicConf);
+        $this->consumer = new KafkaConsumer($conf);
+        $this->consumer->subscribe([$this->getKafkaQueueName()]);
+        $this->container = app();
+        $this->queueConfig += [
+            'queue' => $this->getKafkaQueueName(),
+        ];
+        $this->queue = new KafkaQueue($this->producer, $this->consumer, $this->queueConfig);
+        $this->queue->setContainer($this->container);
     }
 
     /**
@@ -235,5 +272,25 @@ abstract class AbstractWebPageScraperController extends Controller
             ],
             $e->getCode()
         );
+    }
+
+    /**
+     * Get the configured Kafka queue name.
+     *
+     * @return string
+     */
+    protected function getKafkaQueueName()
+    {
+        return config('queue.connections.kafka.queue');
+    }
+
+    /**
+     * Get the configured Kafka brokers.
+     *
+     * @return string
+     */
+    protected function getKafkaQueueBrokers()
+    {
+        return config('queue.connections.kafka.brokers');
     }
 }
