@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Plugins\WebPageScraper\WebPageScraperPlugin;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Rapide\LaravelQueueKafka\Queue\Jobs\KafkaJob;
 use ReflectionException;
@@ -65,10 +66,7 @@ class ProcessWebPageScrapeJob extends Job
             $scraper = $this->webPageScrapers[$package];
             $operation = $scraper['operations'][$op];
             $controller = $operation['controller'];
-            $params = $operation['parameters'];
-            $return = $this->app->call($controller, $params);
-
-            Log::debug(print_r($return, true));
+            $this->app->call($controller, $data);
             $job->delete();
         }
         return;

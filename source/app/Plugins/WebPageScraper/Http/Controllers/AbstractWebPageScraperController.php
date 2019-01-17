@@ -2,8 +2,10 @@
 
 namespace App\Plugins\WebPageScraper\Http\Controllers;
 
+use App\Component\EventStream\KafkaEventStream;
 use App\Http\Controllers\Controller;
 use App\Http\Request\HttpInvalidRequestException;
+use App\Plugins\WebPageScraper\Service\ParameterExtractor\ParameterExtractRequestQuery;
 use Illuminate\Http\Request;
 use Rapide\LaravelQueueKafka\Queue\KafkaQueue;
 use RdKafka\Conf;
@@ -15,6 +17,16 @@ use Symfony\Component\DomCrawler\Crawler;
 
 abstract class AbstractWebPageScraperController extends Controller
 {
+    /**
+     * @var string
+     */
+    protected $baseUrl = 'https://www.example.com';
+
+    /**
+     * @var string
+     */
+    protected $path = '';
+
     /**
      * @var Request – Lumen request object.
      */
@@ -43,7 +55,17 @@ abstract class AbstractWebPageScraperController extends Controller
     /**
      * @var array
      */
-    protected $conf;
+    protected $conf = [];
+
+    /**
+     * @var KafkaEventStream
+     */
+    protected $eventStream;
+
+    /**
+     * @var KafkaQueue
+     */
+    protected $queue;
 
     /**
      * Does this controller need to use a CSS selector?
@@ -52,69 +74,36 @@ abstract class AbstractWebPageScraperController extends Controller
      */
     protected $selectorRequired = true;
 
-    /**
-     * @var RdKafka\Producer
-     */
-    protected $producer;
-    protected $consumer;
-    protected $container;
-    protected $queue;
-    protected $queueConfig = [
-        'sleep_error' => true,
-    ];
-    protected $queueName;
-    protected $queueBrokers;
 
     /**
      * ICareWebPageScraperPluginController constructor.
      *
-     * @param Request $request
-     * @param array $conf
-     *
      * @throws HttpInvalidRequestException
      */
-    public function __construct(Request $request, array $conf = [])
+    public function __construct()
+    {
+    }
+
+    protected function readyForKafka()
     {
         $this->setKafkaQueueName();
         $this->setKafkaQueueBrokers();
-        $this->request = $request;
-        $this->conf = $conf;
 
-        $this->setRequestQuery();
+        $this->eventStream = new KafkaEventStream();
+        $this->queue = $this->eventStream->getQueue();
+    }
 
-        if ($this->selectorRequired && empty($this->query['selector'])) {
-            throw new HttpInvalidRequestException('Please set a CSS selector', 422);
-        }
-
-        $this->producer = new Producer();
-        $this->producer->addBrokers($this->getKafkaQueueBrokers());
-        $conf = new Conf();
-        $consumer_group_id = config('queue.connections.kafka.consumer_group_id');
-        $conf->set('group.id', $consumer_group_id);
-        // Initial list of Kafka brokers
-        $conf->set('metadata.broker.list', $this->getKafkaQueueBrokers());
-        $topicConf = new TopicConf();
-        $topicConf->set('auto.offset.reset', 'latest');
-        $this->producer->newTopic($this->getKafkaQueueName(), $topicConf);
-        $conf->setDefaultTopicConf($topicConf);
-        $this->consumer = new KafkaConsumer($conf);
-        $this->consumer->subscribe([$this->getKafkaQueueName()]);
-        $this->container = app();
-        $this->queueConfig += [
-            'queue' => $this->getKafkaQueueName(),
-        ];
-        $this->queue = new KafkaQueue($this->producer, $this->consumer, $this->queueConfig);
-        $this->queue->setContainer($this->container);
+    protected function extractQuery()
+    {
+        $queryExtractor = new ParameterExtractRequestQuery($this->request);
+        $this->query = $queryExtractor->getQuery();
     }
 
     /**
      * Set the query from the request.
      */
-    protected function setRequestQuery()
+    protected function setQuery()
     {
-        $qs = $this->request->getQueryString();
-        parse_str($qs, $query);
-        $this->query = $query;
         // Set CSS selectors.
         if (!empty($this->query['selector'])) {
             $this->cssSelectors = is_array($this->query['selector'])

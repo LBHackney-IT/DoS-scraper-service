@@ -1504,11 +1504,11 @@
         },
         {
             "name": "lbhackney-it/dos-scraper-package-icare-web",
-            "version": "0.1.5",
+            "version": "0.1.6",
             "source": {
                 "type": "git",
                 "url": "git@github.com:LBHackney-IT/DoS-scraper-package-icare-web.git",
-                "reference": "16e0cff3717ee47f27e728f509499d2c348b3b02"
+                "reference": "80d4928efd35d139cc7551c60d61c97b81da24af"
             },
             "require": {
                 "ext-dom": "*",
@@ -1534,7 +1534,7 @@
                 "MIT"
             ],
             "description": "A Laravel Lumen package for the DoS scraper microservice, to retrieve pages from the Hackney iCare web site.",
-            "time": "2018-12-18T11:38:52+00:00"
+            "time": "2019-01-17T12:27:19+00:00"
         },
         {
             "name": "monolog/monolog",
