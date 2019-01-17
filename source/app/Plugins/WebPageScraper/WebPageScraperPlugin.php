@@ -70,6 +70,7 @@ class WebPageScraperPlugin extends ScraperPlugin
         foreach ($classes as $class) {
             $reflector = new \ReflectionClass($class);
             if ($reflector->implementsInterface($this->interface) && $reflector->isSubclassOf($this->baseClass)) {
+                /** @var AbstractWebPageScraperServiceProvider $klass */
                 $klass = new $class($this->app);
                 $extends = $reflector->getParentClass();
                 $interfaces = $reflector->getInterfaces();
@@ -90,6 +91,7 @@ class WebPageScraperPlugin extends ScraperPlugin
                     ],
                     'interfaces' => $if,
                     'type' => isset($extends) ? $extends->getName() : null,
+                    'operations' => $klass->operations(),
                 ];
             }
         }

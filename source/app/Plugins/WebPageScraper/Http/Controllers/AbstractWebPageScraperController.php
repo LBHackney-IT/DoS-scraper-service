@@ -2,13 +2,31 @@
 
 namespace App\Plugins\WebPageScraper\Http\Controllers;
 
+use App\Component\EventStream\KafkaEventStream;
 use App\Http\Controllers\Controller;
 use App\Http\Request\HttpInvalidRequestException;
+use App\Plugins\WebPageScraper\Service\ParameterExtractor\ParameterExtractRequestQuery;
 use Illuminate\Http\Request;
+use Rapide\LaravelQueueKafka\Queue\KafkaQueue;
+use RdKafka\Conf;
+use RdKafka\Producer;
+use RdKafka\KafkaConsumer;
+use RdKafka\TopicConf;
+
 use Symfony\Component\DomCrawler\Crawler;
 
 abstract class AbstractWebPageScraperController extends Controller
 {
+    /**
+     * @var string
+     */
+    protected $baseUrl = 'https://www.example.com';
+
+    /**
+     * @var string
+     */
+    protected $path = '';
+
     /**
      * @var Request – Lumen request object.
      */
@@ -37,7 +55,17 @@ abstract class AbstractWebPageScraperController extends Controller
     /**
      * @var array
      */
-    protected $conf;
+    protected $conf = [];
+
+    /**
+     * @var KafkaEventStream
+     */
+    protected $eventStream;
+
+    /**
+     * @var KafkaQueue
+     */
+    protected $queue;
 
     /**
      * Does this controller need to use a CSS selector?
@@ -46,33 +74,36 @@ abstract class AbstractWebPageScraperController extends Controller
      */
     protected $selectorRequired = true;
 
+
     /**
      * ICareWebPageScraperPluginController constructor.
      *
-     * @param Request $request
-     * @param array $conf
-     *
      * @throws HttpInvalidRequestException
      */
-    public function __construct(Request $request, array $conf = [])
+    public function __construct()
     {
-        $this->request = $request;
-        $this->conf = $conf;
-        $this->setRequestQuery();
+    }
 
-        if ($this->selectorRequired && empty($this->query['selector'])) {
-            throw new HttpInvalidRequestException('Please set a CSS selector', 422);
-        }
+    protected function readyForKafka()
+    {
+        $this->setKafkaQueueName();
+        $this->setKafkaQueueBrokers();
+
+        $this->eventStream = new KafkaEventStream();
+        $this->queue = $this->eventStream->getQueue();
+    }
+
+    protected function extractQuery()
+    {
+        $queryExtractor = new ParameterExtractRequestQuery($this->request);
+        $this->query = $queryExtractor->getQuery();
     }
 
     /**
      * Set the query from the request.
      */
-    protected function setRequestQuery()
+    protected function setQuery()
     {
-        $qs = $this->request->getQueryString();
-        parse_str($qs, $query);
-        $this->query = $query;
         // Set CSS selectors.
         if (!empty($this->query['selector'])) {
             $this->cssSelectors = is_array($this->query['selector'])
@@ -235,5 +266,41 @@ abstract class AbstractWebPageScraperController extends Controller
             ],
             $e->getCode()
         );
+    }
+
+    /**
+     * Get the configured Kafka queue name.
+     *
+     * @return string
+     */
+    protected function getKafkaQueueName()
+    {
+        return $this->queueName;
+    }
+
+    /**
+     * @param null|string $queueName
+     */
+    protected function setKafkaQueueName($queueName = null): void
+    {
+        $this->queueName = $queueName ? $queueName : config('queue.connections.kafka.queue');
+    }
+
+    /**
+     * Get the configured Kafka brokers.
+     *
+     * @return string
+     */
+    protected function getKafkaQueueBrokers()
+    {
+        return $this->queueBrokers;
+    }
+
+    /**
+     * @param null|string $queueBrokers
+     */
+    public function setKafkaQueueBrokers($queueBrokers = null): void
+    {
+        $this->queueBrokers = $queueBrokers ? $queueBrokers : config('queue.connections.kafka.brokers');
     }
 }

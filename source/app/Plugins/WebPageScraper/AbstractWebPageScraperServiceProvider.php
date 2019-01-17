@@ -84,4 +84,11 @@ abstract class AbstractWebPageScraperServiceProvider extends \Illuminate\Support
 
         return $this->reflector;
     }
+
+    /**
+     * Declare a list of operations for the web page scraper service provider.
+     *
+     * @return array
+     */
+    abstract public function operations();
 }

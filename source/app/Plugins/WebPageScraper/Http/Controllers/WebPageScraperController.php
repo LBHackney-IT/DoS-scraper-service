@@ -2,6 +2,7 @@
 
 namespace App\Plugins\WebPageScraper\Http\Controllers;
 
+use App\Jobs\ProcessWebPageScrapeJob;
 use App\Plugins\WebPageScraper\WebPageScraperPlugin;
 use App\Providers\ScraperPluginServiceProvider\ScraperPluginManager;
 use ReflectionException;

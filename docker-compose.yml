@@ -220,16 +220,16 @@ services:
 #    container_name: "${PROJECT_NAME}_opensmtpd"
 #    image: wodby/opensmtpd:$OPENSMTPD_TAG
 
-  portainer:
-    image: portainer/portainer
-    container_name: "${PROJECT_NAME}_portainer"
-    command: --no-auth -H unix:///var/run/docker.sock
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - 'traefik.backend=portainer'
-      - 'traefik.port=9000'
-      - 'traefik.frontend.rule=Host:portainer.${PROJECT_BASE_URL}'
+#   portainer:
+#     image: portainer/portainer
+#     container_name: "${PROJECT_NAME}_portainer"
+#     command: --no-auth -H unix:///var/run/docker.sock
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#     labels:
+#       - 'traefik.backend=portainer'
+#       - 'traefik.port=9000'
+#       - 'traefik.frontend.rule=Host:portainer.${PROJECT_BASE_URL}'
 #    ports:
 #      - "9000:9000"
 
