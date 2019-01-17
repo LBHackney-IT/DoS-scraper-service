@@ -8,6 +8,10 @@
         {
             "type": "git",
             "url": "git@github.com:LBHackney-IT/DoS-scraper-package-icare-web.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/joesb/laravel-queue-kafka.git"
         }
     ],
     "require": {
@@ -18,7 +22,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "laravel/lumen-framework": "5.7.*",
         "lbhackney-it/dos-scraper-package-icare-web": "^0.1.0",
-        "rapide/laravel-queue-kafka": "^1.0",
+        "rapide/laravel-queue-kafka": "dev-master",
         "symfony/css-selector": "^4.2",
         "symfony/dom-crawler": "^4.1",
         "vlucas/phpdotenv": "~2.2"
