@@ -62,6 +62,8 @@ abstract class AbstractWebPageScraperController extends Controller
     protected $queueConfig = [
         'sleep_error' => true,
     ];
+    protected $queueName;
+    protected $queueBrokers;
 
     /**
      * ICareWebPageScraperPluginController constructor.
@@ -73,8 +75,11 @@ abstract class AbstractWebPageScraperController extends Controller
      */
     public function __construct(Request $request, array $conf = [])
     {
+        $this->setKafkaQueueName();
+        $this->setKafkaQueueBrokers();
         $this->request = $request;
         $this->conf = $conf;
+
         $this->setRequestQuery();
 
         if ($this->selectorRequired && empty($this->query['selector'])) {
@@ -89,7 +94,7 @@ abstract class AbstractWebPageScraperController extends Controller
         // Initial list of Kafka brokers
         $conf->set('metadata.broker.list', $this->getKafkaQueueBrokers());
         $topicConf = new TopicConf();
-        $topicConf->set('auto.offset.reset', 'smallest');
+        $topicConf->set('auto.offset.reset', 'latest');
         $this->producer->newTopic($this->getKafkaQueueName(), $topicConf);
         $conf->setDefaultTopicConf($topicConf);
         $this->consumer = new KafkaConsumer($conf);
@@ -281,7 +286,15 @@ abstract class AbstractWebPageScraperController extends Controller
      */
     protected function getKafkaQueueName()
     {
-        return config('queue.connections.kafka.queue');
+        return $this->queueName;
+    }
+
+    /**
+     * @param null|string $queueName
+     */
+    protected function setKafkaQueueName($queueName = null): void
+    {
+        $this->queueName = $queueName ? $queueName : config('queue.connections.kafka.queue');
     }
 
     /**
@@ -291,6 +304,14 @@ abstract class AbstractWebPageScraperController extends Controller
      */
     protected function getKafkaQueueBrokers()
     {
-        return config('queue.connections.kafka.brokers');
+        return $this->queueBrokers;
+    }
+
+    /**
+     * @param null|string $queueBrokers
+     */
+    public function setKafkaQueueBrokers($queueBrokers = null): void
+    {
+        $this->queueBrokers = $queueBrokers ? $queueBrokers : config('queue.connections.kafka.brokers');
     }
 }
