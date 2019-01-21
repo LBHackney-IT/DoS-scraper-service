@@ -12,31 +12,43 @@ use RdKafka\TopicConf;
 class KafkaEventStream
 {
     /**
+     * An Rdkafka producer object.
+     *
      * @var \RdKafka\Producer
      */
     protected $producer;
 
     /**
+     * An Rdkafka consumer object.
+     *
      * @var \RdKafka\KafkaConsumer
      */
     protected $consumer;
 
     /**
+     * An Rdkafka configuration object.
+     *
      * @var \RdKafka\Conf
      */
     protected $conf;
 
     /**
+     * Application container.
+     *
      * @var \Laravel\Lumen\Application|mixed
      */
     protected $container;
 
     /**
+     * A KafkaQueue object.
+     *
      * @var KafkaQueue
      */
     protected $queue;
 
     /**
+     * A key:value queue configuration array.
+     *
      * @var array
      */
     protected $queueConfig = [
@@ -44,41 +56,55 @@ class KafkaEventStream
     ];
 
     /**
+     * The default Kafka queue name.
+     *
      * @var string
      */
     protected $queueName;
 
     /**
+     * A string of Kafka queue brokers.
+     *
      * @var string
      */
     protected $queueBrokers;
 
     /**
+     * Kafka consumer group ID.
+     *
      * @var string
      */
     protected $consumerGroupId;
 
     /**
      * KafkaEventStream constructor.
+     *
+     * @param array $queueConfig - A key:value array of queue configurations
      */
-    public function __construct()
+    public function __construct($queueConfig = [])
     {
         $this->container = app();
+
+        // Add any queue config supplied.
+        $this->queueConfig += $queueConfig;
 
         $this->setQueueName();
         $this->setQueueBrokers();
         $this->setConsumerGroupId();
-        $this->conf = new Conf();
+        /** @var \RdKafka\Conf conf */
+        $this->conf = $this->container->makeWith('queue.kafka.conf');
         $this->conf->set('group.id', $this->getConsumerGroupId());
         // Initial list of Kafka brokers
         $this->conf->set('metadata.broker.list', $this->getQueueBrokers());
         /** @var RdKafka\Producer producer */
-        $this->producer = new Producer();
+        $this->producer = $this->container->makeWith('queue.kafka.producer');
         $this->producer->addBrokers($this->getQueueBrokers());
-        $topicConf = new TopicConf();
+        /** @var RdKafka\TopicConf $topicConf */
+        $topicConf = $this->container->makeWith('queue.kafka.topic_conf');
         $topicConf->set('auto.offset.reset', 'latest');
         $this->producer->newTopic($this->getQueueName(), $topicConf);
-        $this->consumer = new KafkaConsumer($this->conf);
+//        $this->consumer = new KafkaConsumer($this->conf);
+        $this->consumer = $this->container->makeWith('queue.kafka.consumer', ['conf' => $this->conf]);
         $this->consumer->subscribe([$this->getQueueName()]);
         $this->queueConfig += [
             'queue' => $this->getQueueName(),
