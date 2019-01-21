@@ -239,7 +239,6 @@ services:
     command: -c /dev/null --web --docker --logLevel=INFO
     ports:
       - '80:80'
-      - '8080:8080' # Dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
