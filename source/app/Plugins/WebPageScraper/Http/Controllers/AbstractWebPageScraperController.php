@@ -170,11 +170,15 @@ abstract class AbstractWebPageScraperController extends Controller
                         'code' => 200,
                     ];
                 } catch (\InvalidArgumentException $e) {
-                    $build['message'] = sprintf(
-                        'No data could be retrieved with the current selector: %s',
-                        $this->query['selector']
-                    );
-                    $build['code'] = 422;
+                    $build['items'][] = [
+                        'selector' => $selector,
+                        'message' => sprintf(
+                            '%s No data could be retrieved with the current selector: %s',
+                            $e->getMessage(),
+                            $selector
+                        ),
+                        'code' => 422,
+                    ];
                 }
             }
         } else {
